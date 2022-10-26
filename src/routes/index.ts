@@ -7,11 +7,12 @@ import reportRouter from './Report';
 import auth from '../middleware/auth';
 import login from '../controllers/Auth';
 import register from '../controllers/Employee';
+import { validateAuthentication, validateEmployee } from '../middleware/validation';
 
 const router = express.Router();
 
-router.post('/signup', register.createEmployee);
-router.post('/signin', login);
+router.post('/signup', validateEmployee, register.createEmployee);
+router.post('/signin', validateAuthentication, login);
 
 router.use(auth);
 

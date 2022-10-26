@@ -7,18 +7,17 @@ import NotFoundError from '../errors/NotFoundError';
 
 const assignTask = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
     //make controller to post the task
-    const { title, description, status } = req.body;
+    const { title, dueDate } = req.body;
 
     const managerId = req.user!._id;
-    const employeeId = req.params.employeeId;
+    const employeeID = req.params.employeeID;
 
     const task = new Task({
         _id: new mongoose.Types.ObjectId(),
         title,
-        description,
-        status,
+        dueDate,
         managerId,
-        employeeId
+        employeeID
     });
 
     return task
@@ -28,9 +27,9 @@ const assignTask = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunct
 };
 
 const getTasks = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
-    const { employeeId } = req.params;
+    const { employeeID } = req.params;
 
-    return Task.find({ employeeId })
+    return Task.find({ employeeID })
         .orFail(() => {
             throw new NotFoundError('No tasks found');
         })

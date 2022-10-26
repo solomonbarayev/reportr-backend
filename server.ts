@@ -5,6 +5,11 @@ import Logging from './src/library/Logging';
 import routes from './src/routes/index';
 import { config } from './src/config/config';
 import errorHandler from './src/middleware/errorHandler';
+import { limiter } from './src/middleware/limiter';
+import helmet from 'helmet';
+const logger = require('./src/middleware/logger');
+const cors = require('cors');
+const { errors } = require('celebrate');
 
 require('dotenv').config({ path: './.env' });
 
@@ -22,13 +27,25 @@ mongoose
         Logging.error(err);
     });
 
+router.use(cors());
+router.options('*', cors());
+
+router.use(helmet());
+
+router.use(limiter);
+
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
+
+router.use(logger.requestLogger);
 
 // routes
 router.use(routes);
 
+router.use(logger.errorLogger);
+
 // central error handler
+router.use(errors());
 router.use(errorHandler);
 
 /** only start server if mongo connects */

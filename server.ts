@@ -12,11 +12,13 @@ import login from './src/controllers/Auth';
 import register from './src/controllers/Employee';
 require('dotenv').config({ path: './.env' });
 
+import { config } from './src/config/config';
+
 const router = express();
 
 /** connect to mongo */
 mongoose
-    .connect('mongodb://localhost:27017/reportrDB')
+    .connect(config.db)
     .then(() => {
         Logging.info('Connected to MongoDB');
         StartServer();
@@ -42,7 +44,7 @@ router.use('/tasks', taskRouter);
 const StartServer = () => {
     const server = http.createServer(router);
 
-    server.listen(3000, () => {
-        Logging.info(`Server started on port 3000`);
+    server.listen(config.port, () => {
+        Logging.info(`Server started on port ${config.port}`);
     });
 };

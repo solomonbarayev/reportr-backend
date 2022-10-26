@@ -37,20 +37,4 @@ const EmployeeSchema = new Schema<IEmployee, IEmployeeModel>({
     }
 });
 
-// EmployeeSchema.statics.findEmployeeByCredentials = function findUserByCredentials(email: string, password: string) {
-//     return Employee.findOne({ email })
-//         .select('+password')
-//         .then((user: IEmployee) => {
-//             if (!user) {
-//                 return Promise.reject(new Error('Invalid email or password'));
-//             }
-//             return bcrypt.compare(password, user.password).then((match: boolean) => {
-//                 if (!match) {
-//                     return Promise.reject(new Error('Invalid email or password'));
-//                 }
-//                 return user;
-//             });
-//         });
-// };
-
 export default mongoose.model<IEmployeeModel>('Employee', EmployeeSchema);

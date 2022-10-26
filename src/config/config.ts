@@ -1,14 +1,11 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
-const MONGO_DB = process.env.MONGO_DB || 'mongodb://localhost:27017/reportrDB';
-
-const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
+require('dotenv').config({ path: '../../.env' });
 
 export const config: {
-    MONGO_DB: string;
-    PORT: number;
+    db: string;
+    port: number;
+    jwtSecret: string | number;
 } = {
-    MONGO_DB,
-    PORT
+    db: process.env.MONGO_DB || 'mongodb://localhost:27017/reportrDB',
+    port: Number(process.env.PORT) || 3000,
+    jwtSecret: process.env.JWT_SECRET || 'secret'
 };

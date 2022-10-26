@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { IGetUserAuthInfoRequest } from '../definitions/definitions';
+import { config } from '../config/config';
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -21,7 +22,7 @@ const login = (req: Request, res: Response, next: NextFunction) => {
                 if (!match) {
                     return res.status(401).json({ error: 'Invalid email or password.' });
                 }
-                const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+                const token = jwt.sign({ _id: user._id }, config.jwtSecret, { expiresIn: '7d' });
                 return res.status(200).json({ token });
             });
         })

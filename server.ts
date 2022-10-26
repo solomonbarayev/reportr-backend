@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import Logging from './src/library/Logging';
 import routes from './src/routes/index';
 import { config } from './src/config/config';
+import errorHandler from './src/middleware/errorHandler';
 
 require('dotenv').config({ path: './.env' });
 
@@ -24,7 +25,11 @@ mongoose
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));
 
+// routes
 router.use(routes);
+
+// central error handler
+router.use(errorHandler);
 
 /** only start server if mongo connects */
 const StartServer = () => {

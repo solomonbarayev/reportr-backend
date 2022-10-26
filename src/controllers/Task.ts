@@ -3,6 +3,7 @@ import { IGetUserAuthInfoRequest } from '../definitions/definitions';
 import Task from '../models/Task';
 
 import mongoose from 'mongoose';
+import NotFoundError from '../errors/NotFoundError';
 
 const assignTask = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
     //make controller to post the task
@@ -23,15 +24,24 @@ const assignTask = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunct
     return task
         .save()
         .then((result) => res.status(201).json(result))
-        .catch((err) => res.status(500).json(err));
+        .catch(next);
 };
 
 const getTasks = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
     const { employeeId } = req.params;
 
     return Task.find({ employeeId })
+        .orFail(() => {
+            throw new NotFoundError('No tasks found');
+        })
         .then((result) => res.status(200).json(result))
-        .catch((err) => res.status(500).json(err));
+        .catch(next);
 };
 
-export default { assignTask, getTasks };
+const getAllTasks = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+    return Task.find()
+        .then((result) => res.status(200).json(result))
+        .catch(next);
+};
+
+export default { assignTask, getTasks, getAllTasks };

@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { IGetUserAuthInfoRequest } from '../definitions/definitions';
+import BadRequestError from '../errors/BasRequestError';
+import NotFoundError from '../errors/NotFoundError';
 
 import Report from '../models/Report';
 import Employee from '../models/Employee';
@@ -12,11 +14,12 @@ export const createReport = (req: IGetUserAuthInfoRequest, res: Response, next: 
 
     //check if managerId is empoyeeId's manager
     Employee.findById(employeeId)
+        .orFail(() => {
+            throw new NotFoundError('Employee not found');
+        })
         .then((employee) => {
             if (employee?.managerId?.toString() !== managerId) {
-                res.status(400).json({
-                    message: 'You are not allowed to submit a report to this manager'
-                });
+                throw new BadRequestError('You are not allowed to submit a report to this manager');
             } else {
                 const report = new Report({
                     managerId,
@@ -33,26 +36,19 @@ export const createReport = (req: IGetUserAuthInfoRequest, res: Response, next: 
                             report
                         });
                     })
-                    .catch((err) => {
-                        res.status(500).json({
-                            message: 'Error creating report',
-                            error: err
-                        });
-                    });
+                    .catch(next);
             }
         })
-        .catch((err) => {
-            res.status(500).json({
-                message: 'Error finding employee',
-                error: err
-            });
-        });
+        .catch(next);
 };
 
 export const getReportsForUser = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
     const managerId = req.user!._id!;
 
     Report.find({ managerId })
+        .orFail(() => {
+            throw new NotFoundError('Reports not found');
+        })
         .then((reports) => res.status(200).json(reports))
         .catch((err) => res.status(500).json(err));
 };

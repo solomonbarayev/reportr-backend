@@ -1,11 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
-import { IGetUserAuthInfoRequest } from '../definitions/definitions';
 import { config } from '../config/config';
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-
-import mongoose from 'mongoose';
 
 import Employee from '../models/Employee';
 

@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { IGetUserAuthInfoRequest } from '../definitions/definitions';
 
 const auth = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
@@ -10,8 +10,6 @@ const auth = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) =
     }
 
     const token = authorization.replace('Bearer ', '');
-
-    console.log(token);
 
     let payload = null;
     try {

@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 import mongoose from 'mongoose';
 import Employee from '../models/Employee';
 
-const createEmployee = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+const createEmployee = (req: Request, res: Response, next: NextFunction) => {
     const { picture, name, position, managerId, myTasks, mySubordinates, email, password } = req.body;
 
     //first check that Employee with this email doesn't exist
@@ -56,4 +56,34 @@ const getAllEmployees = (req: IGetUserAuthInfoRequest, res: Response, next: Next
         .catch((err) => res.status(500).json(err));
 };
 
-export default { createEmployee, getEmployee, getAllEmployees };
+const updateEmployee = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+    const employeeID = req.params.employeeID;
+    const { picture, name, position, managerId, myTasks, mySubordinates, email, password } = req.body;
+
+    Employee.findByIdAndUpdate(
+        employeeID,
+        {
+            $set: {
+                picture,
+                name,
+                position,
+                managerId,
+                myTasks,
+                mySubordinates
+            }
+        },
+        { runValidators: true, new: true }
+    )
+        .then((employee) => res.send(employee))
+        .catch((err) => res.status(500).json(err));
+};
+
+const deleteEmployee = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+    const employeeID = req.params.employeeID;
+
+    Employee.findByIdAndDelete(employeeID)
+        .then((employee) => res.status(200).send({ deleted: employee }))
+        .catch((err) => res.status(500).json(err));
+};
+
+export default { createEmployee, getEmployee, getAllEmployees, updateEmployee, deleteEmployee };

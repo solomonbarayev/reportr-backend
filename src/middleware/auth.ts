@@ -11,14 +11,16 @@ const auth = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) =
 
     const token = authorization.replace('Bearer ', '');
 
-    let payload;
+    console.log(token);
+
+    let payload = null;
     try {
         payload = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
         return res.status(401).json({ error: 'You must be logged in.' });
     }
 
-    req.user!._id = payload;
+    req.user = { _id: payload._id };
 
     return next();
 };

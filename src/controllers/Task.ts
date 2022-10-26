@@ -8,7 +8,7 @@ const assignTask = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunct
     //make controller to post the task
     const { title, description, status } = req.body;
 
-    const managerId = req.user!._id!;
+    const managerId = req.user!._id;
     const employeeId = req.params.employeeId;
 
     const task = new Task({

@@ -7,53 +7,13 @@ import Employee from '../models/Employee';
 
 const bcrypt = require('bcryptjs');
 
-// const createEmployee = (req: Request, res: Response, next: NextFunction) => {
-//     console.log(req.body);
-//     const { picture, firstName, lastName, position, managerId, myTasks, mySubordinates, email, password, isManager } = req.body;
-
-//     //first check that Employee with this email doesn't exist
-//     Employee.findOne({ email })
-//         .then((employee) => {
-//             if (employee) {
-//                 throw new ConflictError('Email already exists');
-//             }
-//             return bcrypt.hash(password, 10);
-//         })
-//         .then((hash) => {
-//             Employee.create({
-//                 picture,
-//                 firstName,
-//                 lastName,
-//                 position,
-//                 managerId,
-//                 myTasks,
-//                 mySubordinates,
-//                 email,
-//                 password: hash,
-//                 isManager
-//             })
-//                 .then((employee) => {
-//                     return res.status(200).json({ employee });
-//                 })
-//                 .catch((err) => {
-//                     if (err.name === 'ValidationError') {
-//                         next(new BadRequestError(err.message));
-//                     } else {
-//                         next(err);
-//                     }
-//                 });
-//         })
-//         .catch(next);
-// };
-
-/* create employee function needs:
-1. check if email already exists
-2. hash password
-3. create employee
-4. update other employees who's ID are in this employee's mySubordinates array
-*/
-
 const createEmployee = (req: Request, res: Response, next: NextFunction) => {
+    /* create employee function needs:
+    1. check if email already exists
+    2. hash password
+    3. create employee
+    4. update other employees who's ID are in this employee's mySubordinates array
+    */
     const { picture, firstName, lastName, position, managerId, myTasks, mySubordinates, email, password, isManager } = req.body;
 
     //first check that Employee with this email doesn't exist
@@ -133,15 +93,30 @@ const getEmployee = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunc
         });
 };
 
-const getManager = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
-    const employeeID = req.params.employeeID;
+// const getManager = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+//     const employeeID = req.params.employeeID;
 
-    Employee.findById(employeeID)
+//     Employee.findById(employeeID)
+//         .then((employee) => {
+//             if (!employee) {
+//                 throw new NotFoundError('Employee not found');
+//             } else {
+//                 return res.status(200).json(employee);
+//             }
+//         })
+//         .catch(next);
+// };
+
+const getManager = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+    //find employee by ID and popuplate manager info
+    const employeeID = req.params.employeeID;
+    Employee.findById({ _id: employeeID })
+        .populate('managerId')
         .then((employee) => {
             if (!employee) {
                 throw new NotFoundError('Employee not found');
             } else {
-                return res.status(200).json(employee);
+                return res.status(200).json(employee.managerId);
             }
         })
         .catch(next);

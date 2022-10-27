@@ -7,7 +7,7 @@ const { assignTask, getTasks, getAllTasks } = controllers;
 const router: Router = express.Router();
 
 router.post('/:employeeID', validateObjectId, validateTask, assignTask);
-router.get('/:employeeID', validateTask, getTasks);
+router.get('/:employeeID', validateObjectId, getTasks);
 router.get('/', getAllTasks);
 
 export default router;

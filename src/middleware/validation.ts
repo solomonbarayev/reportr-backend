@@ -2,11 +2,11 @@ const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
 const { ObjectId } = require('mongoose').Types;
 
-const validateURL = (value: string, helpers: { message(text: string): string }) => {
-    if (!validator.isURL(value)) {
-        return helpers.message('string.uri');
+const validateURL = (v: string) => {
+    if (!validator.isURL(v)) {
+        throw new Error('string.uri');
     }
-    return value;
+    return v;
 };
 
 const validateAuthentication = celebrate({

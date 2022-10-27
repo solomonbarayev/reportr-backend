@@ -8,6 +8,7 @@ import Employee from '../models/Employee';
 const bcrypt = require('bcryptjs');
 
 const createEmployee = (req: Request, res: Response, next: NextFunction) => {
+    console.log(req.body);
     const { picture, name, position, managerId, myTasks, mySubordinates, email, password } = req.body;
 
     //first check that Employee with this email doesn't exist
@@ -39,6 +40,19 @@ const createEmployee = (req: Request, res: Response, next: NextFunction) => {
                         next(err);
                     }
                 });
+        })
+        .catch(next);
+};
+
+const getMyEmployeeProfile = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+    const employeeID = req.user!._id;
+
+    Employee.findById(employeeID)
+        .then((employee) => {
+            if (!employee) {
+                throw new NotFoundError('Employee not found');
+            }
+            return res.status(200).json(employee);
         })
         .catch(next);
 };
@@ -104,4 +118,4 @@ const deleteEmployee = (req: IGetUserAuthInfoRequest, res: Response, next: NextF
         .catch(next);
 };
 
-export default { createEmployee, getEmployee, getAllEmployees, updateEmployee, deleteEmployee };
+export default { createEmployee, getEmployee, getAllEmployees, getMyEmployeeProfile, updateEmployee, deleteEmployee };

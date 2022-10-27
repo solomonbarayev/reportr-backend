@@ -32,15 +32,31 @@ const validateEmployee = celebrate({
             'any.required': 'Password is required',
             'string.min': 'Password must be at least 8 characters'
         }),
-        name: Joi.string().required().messages({
-            'any.required': 'Name is required'
+        firstName: Joi.string().required().messages({
+            'any.required': 'First name is required'
+        }),
+        lastName: Joi.string().required().messages({
+            'any.required': 'Last name is required'
         }),
         position: Joi.string().required().messages({
             'any.required': 'Position is required'
         }),
         picture: Joi.string().custom(validateURL).messages({
             'string.uri': 'Must be a valid URL'
-        })
+        }),
+        isManager: Joi.boolean(),
+        mySubordinates: Joi.array()
+            .items(
+                Joi.string().custom((v: string) => {
+                    if (!ObjectId.isValid(v)) {
+                        throw new Error('string.objectId');
+                    }
+                    return v;
+                })
+            )
+            .messages({
+                'string.objectId': 'Must be a valid ObjectId'
+            })
     })
 });
 

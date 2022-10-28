@@ -11,14 +11,14 @@ import BadRequestError from '../errors/BasRequestError';
 const assignTask = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
     // first check if user exists
 
-    console.log(req.body);
-    console.log(req.user!._id);
-    console.log(req.params.employeeID);
-
     Employee.findById(req.params.employeeID)
         .then((emp) => {
             if (!emp) {
                 throw new NotFoundError('Employee not found');
+            }
+
+            if (emp?.managerId?.toString() !== req.user!._id.toString()) {
+                throw new BadRequestError('You are not allowed to assign tasks to this employee');
             }
 
             Task.create({
@@ -27,7 +27,8 @@ const assignTask = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunct
                 title: req.body.title,
                 dueDate: req.body.dueDate,
                 managerId: req.user!._id,
-                employeeId: req.params.employeeID
+                employeeId: req.params.employeeID,
+                assignDate: new Date().toISOString()
             })
                 .then((response) => {
                     Employee.updateOne({ _id: req.params.employeeID }, { $push: { myTasks: response._id } })

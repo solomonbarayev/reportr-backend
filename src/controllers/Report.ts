@@ -12,9 +12,6 @@ export const createReport = (req: IGetUserAuthInfoRequest, res: Response, next: 
     const employeeId = req.user!._id!;
     const managerId = req.params.managerId;
 
-    console.log('maangerId', managerId);
-    console.log('employeeId', employeeId);
-
     //check if managerId is empoyeeId's manager
     Employee.findById({ _id: employeeId })
         .orFail(() => {
@@ -51,27 +48,13 @@ export const getReportsForUser = (req: IGetUserAuthInfoRequest, res: Response, n
     const managerId = req.user!._id!;
 
     Report.find({ managerId })
+        //populate firstName and lastName from empployeeId
+        .populate({ path: 'employeeId', select: 'firstName lastName' })
         .orFail(() => {
             throw new NotFoundError('Reports not found');
         })
         .then((reports) => res.status(200).json(reports))
-        .catch((err) => res.status(500).json(err));
-};
-
-export const getReportsForCurrentUser = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
-    const managerId = req.user!._id!;
-
-    console.log(managerId); ///// returning id of logged in user
-
-    Report.find({ managerId: managerId }) ////////////// check this!!!
-        .then((reports) => {
-            if (reports.length === 0) {
-                console.log('here');
-                throw new NotFoundError('no reports found for this user');
-            }
-            res.status(200).json(reports);
-        })
-        .catch((err) => res.status(500).json(err));
+        .catch(next);
 };
 
 export const deleteAllReports = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {

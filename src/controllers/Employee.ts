@@ -3,7 +3,7 @@ import { IGetUserAuthInfoRequest } from '../definitions/definitions';
 import BadRequestError from '../errors/BasRequestError';
 import ConflictError from '../errors/ConflictError';
 import NotFoundError from '../errors/NotFoundError';
-import Employee from '../models/Employee';
+import Employee, { IEmployee } from '../models/Employee';
 import Report from '../models/Report';
 import Task from '../models/Task';
 
@@ -137,7 +137,7 @@ const deleteEmployee = (req: IGetUserAuthInfoRequest, res: Response, next: NextF
         .orFail(() => {
             throw new NotFoundError('Employee not found');
         })
-        .then((employee) => res.status(200).send({ deleted: employee }))
+        .then((employee: IEmployee) => res.status(200).send({ deleted: employee }))
         .catch(next);
 };
 

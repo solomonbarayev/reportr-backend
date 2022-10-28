@@ -77,7 +77,10 @@ const getMyEmployeeProfile = (req: IGetUserAuthInfoRequest, res: Response, next:
 const getEmployee = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
     const employeeID = req.params.employeeID;
 
-    Employee.findById(employeeID)
+    Employee.findById({ _id: employeeID })
+        .populate({ path: 'managerId', select: 'firstName lastName' })
+        .populate({ path: 'mySubordinates', select: 'firstName lastName position' })
+        .populate({ path: 'myTasks', select: 'title dueDate' })
         .then((employee) => {
             if (!employee) {
                 throw new NotFoundError('Employee not found');
@@ -91,35 +94,6 @@ const getEmployee = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunc
             }
             return next(err);
         });
-};
-
-// const getManager = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
-//     const employeeID = req.params.employeeID;
-
-//     Employee.findById(employeeID)
-//         .then((employee) => {
-//             if (!employee) {
-//                 throw new NotFoundError('Employee not found');
-//             } else {
-//                 return res.status(200).json(employee);
-//             }
-//         })
-//         .catch(next);
-// };
-
-const getManager = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
-    //find employee by ID and popuplate manager info
-    const employeeID = req.params.employeeID;
-    Employee.findById({ _id: employeeID })
-        .populate('managerId')
-        .then((employee) => {
-            if (!employee) {
-                throw new NotFoundError('Employee not found');
-            } else {
-                return res.status(200).json(employee.managerId);
-            }
-        })
-        .catch(next);
 };
 
 const getAllEmployees = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
@@ -171,4 +145,4 @@ const deleteAllEmployees = (req: IGetUserAuthInfoRequest, res: Response, next: N
         .catch(next);
 };
 
-export default { createEmployee, getEmployee, getAllEmployees, getManager, getMyEmployeeProfile, updateEmployee, deleteEmployee, deleteAllEmployees };
+export default { createEmployee, getEmployee, getAllEmployees, getMyEmployeeProfile, updateEmployee, deleteEmployee, deleteAllEmployees };

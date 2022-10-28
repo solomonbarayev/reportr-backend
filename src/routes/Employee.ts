@@ -7,8 +7,7 @@ const router = express.Router();
 router.get('/myprofile', controller.getMyEmployeeProfile);
 router.get('/:employeeID', validateObjectId, controller.getEmployee);
 router.get('/', controller.getAllEmployees);
-router.get('/:employeeID/manager', validateObjectId, controller.getManager);
-router.patch('/:employeeID', validateObjectId, controller.updateEmployee);
+router.patch('/:employeeID', controller.updateEmployee);
 router.delete('/:employeeID', validateObjectId, controller.deleteEmployee);
 router.delete('/', controller.deleteAllEmployees);
 

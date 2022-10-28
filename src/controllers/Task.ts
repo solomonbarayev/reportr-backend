@@ -6,7 +6,6 @@ import Employee from '../models/Employee';
 import mongoose from 'mongoose';
 import NotFoundError from '../errors/NotFoundError';
 import BadRequestError from '../errors/BasRequestError';
-// import Employee from './Employee';
 
 const assignTask = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
     // first check if user exists
@@ -64,6 +63,26 @@ const getAllTasks = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunc
         .catch(next);
 };
 
+const getCurrentUserTasks = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+    const employeeID = req.user!._id;
+
+    Employee.findById({ _id: employeeID })
+        .populate({ path: 'myTasks', select: 'title dueDate' })
+        .then((employee) => {
+            if (!employee) {
+                throw new NotFoundError('Employee not found');
+            } else {
+                return res.status(200).json(employee.myTasks);
+            }
+        })
+        .catch((err) => {
+            if (err.name === 'CastError') {
+                next(new BadRequestError('Invalid ID'));
+            }
+            return next(err);
+        });
+};
+
 const deleteTask = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
     const { id } = req.params;
 
@@ -72,4 +91,4 @@ const deleteTask = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunct
         .catch(next);
 };
 
-export default { assignTask, getTasks, getAllTasks, deleteTask };
+export default { assignTask, getTasks, getAllTasks, deleteTask, getCurrentUserTasks };

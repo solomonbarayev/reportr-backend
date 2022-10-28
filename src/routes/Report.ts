@@ -4,7 +4,7 @@ import { validateReport } from '../middleware/validation';
 
 const router: Router = express.Router();
 
-router.post('/', validateReport, createReport);
+router.post('/:managerId', validateReport, createReport);
 router.get('/', getReportsForUser);
 
 export default router;

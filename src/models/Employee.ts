@@ -14,6 +14,7 @@ export interface IEmployee {
     email: string;
     mySubordinates: [Types.ObjectId];
     isManager: boolean;
+    myReports: [Types.ObjectId];
 }
 
 export interface IEmployeeModel extends IEmployee, Document {}
@@ -40,7 +41,8 @@ const EmployeeSchema = new Schema<IEmployee, IEmployeeModel>({
         select: false
     },
     isManager: { type: Boolean, required: true, default: false },
-    mySubordinates: { type: [mongoose.Schema.Types.ObjectId], required: false, ref: 'Employee', default: [] }
+    mySubordinates: { type: [mongoose.Schema.Types.ObjectId], required: false, ref: 'Employee', default: [] },
+    myReports: { type: [mongoose.Schema.Types.ObjectId], required: false, ref: 'Report', default: [] }
 });
 
 export default mongoose.model<IEmployeeModel>('Employee', EmployeeSchema);

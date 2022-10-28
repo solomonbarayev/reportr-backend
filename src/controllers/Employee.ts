@@ -4,6 +4,8 @@ import BadRequestError from '../errors/BasRequestError';
 import ConflictError from '../errors/ConflictError';
 import NotFoundError from '../errors/NotFoundError';
 import Employee from '../models/Employee';
+import Report from '../models/Report';
+import Task from '../models/Task';
 
 const bcrypt = require('bcryptjs');
 
@@ -61,7 +63,7 @@ const createEmployee = (req: Request, res: Response, next: NextFunction) => {
         .catch(next);
 };
 
-const getMyEmployeeProfile = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+const getCurrentLoggedInEmployee = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
     const employeeID = req.user!._id;
 
     Employee.findById(employeeID)
@@ -141,8 +143,19 @@ const deleteEmployee = (req: IGetUserAuthInfoRequest, res: Response, next: NextF
 
 const deleteAllEmployees = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
     Employee.deleteMany({})
-        .then(() => res.status(200).send({ deleted: 'All employees' }))
+        .then(() => {
+            // also delete all tasks and reports
+            Task.deleteMany({})
+                .then(() => {
+                    Report.deleteMany({})
+                        .then(() => {
+                            return res.status(200).json({ message: 'All employees, tasks and reports deleted' });
+                        })
+                        .catch(next);
+                })
+                .catch(next);
+        })
         .catch(next);
 };
 
-export default { createEmployee, getEmployee, getAllEmployees, getMyEmployeeProfile, updateEmployee, deleteEmployee, deleteAllEmployees };
+export default { createEmployee, getEmployee, getAllEmployees, getCurrentLoggedInEmployee, updateEmployee, deleteEmployee, deleteAllEmployees };

@@ -12,9 +12,9 @@ export interface IEmployee {
     myTasks: [Types.ObjectId];
     password: string;
     email: string;
-    mySubordinates: [Types.ObjectId];
+    // mySubordinates: [Types.ObjectId];
     isManager: boolean;
-    myReports: [Types.ObjectId];
+    // myReports: [Types.ObjectId];
 }
 
 export interface IEmployeeModel extends IEmployee, Document {}
@@ -40,9 +40,7 @@ const EmployeeSchema = new Schema<IEmployee, IEmployeeModel>({
         required: true,
         select: false
     },
-    isManager: { type: Boolean, required: true, default: false },
-    mySubordinates: { type: [mongoose.Schema.Types.ObjectId], required: false, ref: 'Employee', default: [] },
-    myReports: { type: [mongoose.Schema.Types.ObjectId], required: false, ref: 'Report', default: [] }
+    isManager: { type: Boolean, required: true, default: false }
 });
 
 export default mongoose.model<IEmployeeModel>('Employee', EmployeeSchema);

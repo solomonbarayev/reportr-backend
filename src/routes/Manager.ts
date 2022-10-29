@@ -1,10 +1,10 @@
 import express, { Router } from 'express';
 import controllers from '../controllers/Manager';
 
-const { getReportsForManager } = controllers;
+const { getReportsForManager, getAllManagers } = controllers;
 
 const router: Router = express.Router();
 
-router.get('/', getReportsForManager);
+router.get('/all', getAllManagers);
 
 export default router;

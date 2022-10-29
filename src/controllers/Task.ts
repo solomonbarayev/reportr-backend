@@ -45,7 +45,7 @@ const assignTask = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunct
         .catch(next);
 };
 
-const getTasks = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+const getTasksForEmployee = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
     const { employeeID } = req.params;
 
     return Task.find({ employeeId: employeeID }).then((result) => {
@@ -83,12 +83,4 @@ const getCurrentUserTasks = (req: IGetUserAuthInfoRequest, res: Response, next: 
         });
 };
 
-const deleteTask = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
-    const { id } = req.params;
-
-    return Task.deleteOne({ _id: id })
-        .then((result) => res.status(200).json(result))
-        .catch(next);
-};
-
-export default { assignTask, getTasks, getAllTasks, deleteTask, getCurrentUserTasks };
+export default { assignTask, getTasksForEmployee, getAllTasks, getCurrentUserTasks };

@@ -1,19 +1,16 @@
 //make manager extend from employee and add the manager specific fields
 import mongoose, { Document, Schema, Types } from 'mongoose';
 
-import { IEmployee } from './Employee';
-
-export interface IManager extends IEmployee {
+export interface IManager {
     mySubordinates: Types.ObjectId[];
-    managerId: Types.ObjectId;
-    reports: Types.ObjectId[];
+    myReports: Types.ObjectId[];
 }
 
 export interface IManagerModel extends IManager, Document {}
 
 const ManagerSchema = new Schema({
     mySubordinates: { type: [mongoose.Schema.Types.ObjectId], required: false, ref: 'Employee', default: [] },
-    reports: { type: [mongoose.Schema.Types.ObjectId], required: false, ref: 'Report' }
+    myReports: { type: [mongoose.Schema.Types.ObjectId], required: false, ref: 'Report', default: [] }
 });
 
 export default mongoose.model<IManagerModel>('Manager', ManagerSchema);

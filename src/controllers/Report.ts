@@ -5,6 +5,12 @@ import NotFoundError from '../errors/NotFoundError';
 
 import Report from '../models/Report';
 import Employee from '../models/Employee';
+import Manager from '../models/Manager';
+
+// to create report we need to:
+// 1. check if managerId is empoyeeId's manager
+// 2. create report
+// 3. add report id to Managers myReports array
 
 export const createReport = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
     const { text, date } = req.body;
@@ -28,8 +34,8 @@ export const createReport = (req: IGetUserAuthInfoRequest, res: Response, next: 
                     employeeId
                 })
                     .then((report) => {
-                        //add report id to employee myReports array
-                        Employee.updateOne({ _id: managerId }, { $push: { myReports: report._id } })
+                        //add report id to manager's myReports array
+                        Manager.updateOne({ _id: managerId }, { $push: { myReports: report._id } })
                             .then((result) => console.log(result))
                             .catch(next);
 
@@ -46,26 +52,12 @@ export const createReport = (req: IGetUserAuthInfoRequest, res: Response, next: 
 
 export const getReportsForUser = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
     const managerId = req.user!._id!;
-
-    Report.find({ managerId })
-        //populate firstName and lastName from empployeeId
-        .populate({ path: 'employeeId', select: 'firstName lastName' })
+    Manager.findById(managerId)
+        .populate('myReports')
+        .select('myReports')
         .orFail(() => {
             throw new NotFoundError('Reports not found');
         })
         .then((reports) => res.status(200).json(reports))
-        .catch(next);
-};
-
-export const deleteAllReports = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
-    Report.deleteMany({})
-        .then((result) => {
-            //delete all reports from employee myReports array
-            Employee.updateMany({}, { $set: { myReports: [] } })
-                .then((result) => res.status(200).json(result))
-                .catch(next);
-
-            res.status(200).json(result);
-        })
         .catch(next);
 };

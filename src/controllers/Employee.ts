@@ -4,6 +4,7 @@ import BadRequestError from '../errors/BasRequestError';
 import ConflictError from '../errors/ConflictError';
 import NotFoundError from '../errors/NotFoundError';
 import Employee, { IEmployee } from '../models/Employee';
+import Manager from '../models/Manager';
 import Report from '../models/Report';
 import Task from '../models/Task';
 
@@ -14,9 +15,10 @@ const createEmployee = (req: Request, res: Response, next: NextFunction) => {
     1. check if email already exists
     2. hash password
     3. create employee
-    4. update other employees who's ID are in this employee's mySubordinates array
+    4. check if this employee is manager and if so create manager
+    5. if manager, update other employees who's ID are in this employee's mySubordinates array
     */
-    const { picture, firstName, lastName, position, managerId, myTasks, mySubordinates, email, password, isManager } = req.body;
+    const { picture, firstName, lastName, position, myTasks, email, password, isManager, mySubordinates } = req.body;
 
     //first check that Employee with this email doesn't exist
     Employee.findOne({ email })
@@ -32,25 +34,33 @@ const createEmployee = (req: Request, res: Response, next: NextFunction) => {
                 firstName,
                 lastName,
                 position,
-                managerId,
                 myTasks,
-                mySubordinates,
                 email,
                 password: hash,
                 isManager
             })
-                //update other employees who's ID are in this employee's mySubordinates array
+                //check if this employee is manager and if so create manager
                 .then((employee) => {
-                    if (employee.mySubordinates.length > 0) {
-                        employee.mySubordinates.forEach((subordinateId) => {
-                            Employee.findByIdAndUpdate(subordinateId, { managerId: employee._id }, { new: true })
-                                .then((subordinate) => {
-                                    console.log(subordinate);
-                                })
-                                .catch(next);
-                        });
+                    if (employee.isManager) {
+                        Manager.create({
+                            mySubordinates,
+                            _id: employee._id
+                        })
+                            .then((manager) => {
+                                //update other employees who's ID are in this employee's mySubordinates array
+                                if (manager.mySubordinates.length > 0) {
+                                    manager.mySubordinates.forEach((subordinateId) => {
+                                        Employee.findByIdAndUpdate(subordinateId, { managerId: manager._id }, { new: true })
+                                            .then((subordinate) => {
+                                                console.log(subordinate);
+                                            })
+                                            .catch(next);
+                                    });
+                                }
+                            })
+                            .catch(next);
                     }
-                    return res.status(200).json({ employee });
+                    return res.status(200).json(employee);
                 })
                 .catch((err) => {
                     if (err.name === 'ValidationError') {
@@ -76,18 +86,46 @@ const getCurrentLoggedInEmployee = (req: IGetUserAuthInfoRequest, res: Response,
         .catch(next);
 };
 
+// getEmployee controller
+//1. check if employee exists
+//2. if employee exists, check if employee is manager
+//3. if employee is manager, return the employee and also return the manager's mySubordinates
+//4. if employee is not manager, return the employee
 const getEmployee = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
     const employeeID = req.params.employeeID;
 
     Employee.findById({ _id: employeeID })
-        .populate({ path: 'managerId', select: 'firstName lastName' })
-        .populate({ path: 'mySubordinates', select: 'firstName lastName position' })
-        .populate({ path: 'myTasks', select: 'title dueDate' })
         .then((employee) => {
+            //1. check if employee exists
             if (!employee) {
                 throw new NotFoundError('Employee not found');
             } else {
-                return res.status(200).json(employee);
+                //2. if employee exists, check if employee is manager
+                if (employee.isManager) {
+                    //3. if employee is manager, return the employee and also return the manager's mySubordinates
+                    Manager.findById({ _id: employeeID })
+                        .populate({ path: 'mySubordinates', select: 'firstName lastName position' })
+                        .select('mySubordinates')
+                        .then((manager) => {
+                            // check if manager exists
+                            if (!manager) {
+                                throw new NotFoundError('Manager not found');
+                            } else {
+                                //if manager exists, return the employee and also return the manager's mySubordinates
+                                return res.status(200).json({ employeeInfo: employee, managerialInfo: manager });
+                            }
+                        })
+                        .catch(next);
+                } else {
+                    //if employee is not manager, return the employee with task info populated, but no managerial info
+                    Employee.findById({ _id: employeeID })
+                        .populate({ path: 'myTasks', select: 'title dueDate' })
+                        .populate({ path: 'managerId', select: 'firstName lastName position' })
+                        .then((employee) => {
+                            return res.status(200).json({ employeeInfo: employee });
+                        })
+                        .catch(next);
+                }
             }
         })
         .catch((err) => {
@@ -104,43 +142,6 @@ const getAllEmployees = (req: IGetUserAuthInfoRequest, res: Response, next: Next
         .catch(next);
 };
 
-const updateEmployee = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
-    const employeeID = req.params.employeeID;
-    const { picture, firstName, lastName, position, managerId, myTasks, mySubordinates } = req.body;
-
-    Employee.findByIdAndUpdate(
-        employeeID,
-        {
-            $set: {
-                picture,
-                firstName,
-                lastName,
-                position,
-                managerId,
-                myTasks,
-                mySubordinates
-            }
-        },
-        { runValidators: true, new: true }
-    )
-        .orFail(() => {
-            throw new NotFoundError('Employee not found');
-        })
-        .then((employee) => res.status(200).send(employee))
-        .catch(next);
-};
-
-const deleteEmployee = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
-    const employeeID = req.params.employeeID;
-
-    Employee.findByIdAndDelete(employeeID)
-        .orFail(() => {
-            throw new NotFoundError('Employee not found');
-        })
-        .then((employee: IEmployee) => res.status(200).send({ deleted: employee }))
-        .catch(next);
-};
-
 const deleteAllEmployees = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
     Employee.deleteMany({})
         .then(() => {
@@ -149,7 +150,13 @@ const deleteAllEmployees = (req: IGetUserAuthInfoRequest, res: Response, next: N
                 .then(() => {
                     Report.deleteMany({})
                         .then(() => {
-                            return res.status(200).json({ message: 'All employees, tasks and reports deleted' });
+                            // return res.status(200).json({ message: 'All employees, tasks and reports deleted' });
+                            //delete all managers
+                            Manager.deleteMany({})
+                                .then(() => {
+                                    return res.status(200).json({ message: 'All employees, tasks, reports and managers deleted' });
+                                })
+                                .catch(next);
                         })
                         .catch(next);
                 })
@@ -158,4 +165,4 @@ const deleteAllEmployees = (req: IGetUserAuthInfoRequest, res: Response, next: N
         .catch(next);
 };
 
-export default { createEmployee, getEmployee, getAllEmployees, getCurrentLoggedInEmployee, updateEmployee, deleteEmployee, deleteAllEmployees };
+export default { createEmployee, getEmployee, getAllEmployees, getCurrentLoggedInEmployee, deleteAllEmployees };

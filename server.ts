@@ -32,7 +32,7 @@ router.options('*', cors());
 
 router.use(helmet());
 
-router.use(limiter);
+// router.use(limiter);
 
 router.use(express.json());
 router.use(express.urlencoded({ extended: true }));

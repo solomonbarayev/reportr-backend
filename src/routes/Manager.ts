@@ -1,7 +1,7 @@
 import express, { Router } from 'express';
 import controllers from '../controllers/Manager';
 
-const { getReportsForManager, getAllManagers } = controllers;
+const { getAllManagers } = controllers;
 
 const router: Router = express.Router();
 

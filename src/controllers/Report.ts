@@ -51,10 +51,11 @@ export const createReport = (req: IGetUserAuthInfoRequest, res: Response, next: 
 };
 
 export const getReportsForUser = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+    //get reports for current user and populate employeeId firstName and lastName
     const managerId = req.user!._id!;
-    Manager.findById(managerId)
-        .populate('myReports')
-        .select('myReports')
+    Report.find({ managerId })
+        .populate({ path: 'employeeId', select: 'firstName lastName' })
+        .select('date text employeeId')
         .orFail(() => {
             throw new NotFoundError('Reports not found');
         })

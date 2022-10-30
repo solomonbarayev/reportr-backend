@@ -20,7 +20,10 @@ const login = (req: Request, res: Response, next: NextFunction) => {
                     return res.status(401).json({ error: 'Invalid email or password.' });
                 }
                 const token = jwt.sign({ _id: user._id }, config.jwtSecret, { expiresIn: '7d' });
-                return res.status(200).json({ token });
+                // make object from user with everything except password
+                const { password, ...userWithoutPassword } = user.toObject();
+                // return token and user without password
+                return res.status(200).json({ token, user: userWithoutPassword });
             });
         })
         .catch((err) => {

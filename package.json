@@ -7,7 +7,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "node build/server.js",
         "build": "rm -rf build/ && npx tsc",
-        "dev": "nodemon ./server.ts"
+        "dev": "nodemon ./src/server.ts"
     },
     "author": "Solomon Barayev",
     "license": "ISC",

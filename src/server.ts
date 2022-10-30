@@ -1,13 +1,14 @@
 import http from 'http';
 import express from 'express';
 import mongoose from 'mongoose';
-import Logging from './src/library/Logging';
-import routes from './src/routes/index';
-import { config } from './src/config/config';
-import errorHandler from './src/middleware/errorHandler';
-import { limiter } from './src/middleware/limiter';
+// import Logging from './library/Logging';
+import Logging from './library/Logging';
+import routes from './routes/index';
+import { config } from './config/config';
+import errorHandler from './middleware/errorHandler';
+import { limiter } from './middleware/limiter';
 import helmet from 'helmet';
-const logger = require('./src/middleware/logger');
+const logger = require('./middleware/logger');
 const cors = require('cors');
 const { errors } = require('celebrate');
 

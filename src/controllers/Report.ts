@@ -56,9 +56,6 @@ export const getReportsForUser = (req: IGetUserAuthInfoRequest, res: Response, n
     Report.find({ managerId })
         .populate({ path: 'employeeId', select: 'firstName lastName' })
         .select('date text employeeId')
-        .orFail(() => {
-            throw new NotFoundError('Reports not found');
-        })
         .then((reports) => res.status(200).json(reports))
         .catch(next);
 };

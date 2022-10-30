@@ -95,6 +95,8 @@ const getEmployee = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunc
     const employeeID = req.params.employeeID;
 
     Employee.findById({ _id: employeeID })
+        .populate({ path: 'myTasks', select: 'title dueDate' })
+        .populate({ path: 'managerId', select: 'firstName lastName position' })
         .then((employee) => {
             //1. check if employee exists
             if (!employee) {

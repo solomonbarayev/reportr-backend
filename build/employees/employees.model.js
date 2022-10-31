@@ -25,12 +25,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const validator = require('validator');
-const bcrypt = require('bcryptjs');
-const EmployeeSchema = new mongoose_1.Schema({
+const employeeSchema = new mongoose_1.Schema({
     picture: { type: String, required: true, default: 'https://pictures.s3.yandex.net/resources/avatar_1604080799.jpg' },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
-    position: { type: String, required: true, default: 'New position' },
+    position: { type: String, required: true },
     managerId: { type: mongoose_1.default.Schema.Types.ObjectId, required: false, ref: 'Employee', default: null },
     myTasks: { type: [mongoose_1.default.Schema.Types.ObjectId], required: false, ref: 'Task', default: [] },
     email: {
@@ -49,4 +48,5 @@ const EmployeeSchema = new mongoose_1.Schema({
     },
     isManager: { type: Boolean, required: true, default: false }
 });
-exports.default = mongoose_1.default.model('Employee', EmployeeSchema);
+const employeeModel = mongoose_1.default.model('Employee', employeeSchema);
+exports.default = employeeModel;

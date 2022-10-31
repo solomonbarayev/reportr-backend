@@ -61,7 +61,7 @@ const validateEmployee = celebrate({
 exports.validateEmployee = validateEmployee;
 const validateObjectId = celebrate({
     params: Joi.object().keys({
-        employeeID: Joi.string()
+        id: Joi.string()
             .required()
             .custom((value, helpers) => {
             if (!ObjectId.isValid(value)) {

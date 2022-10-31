@@ -23,10 +23,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-//make manager extend from employee and add the manager specific fields
 const mongoose_1 = __importStar(require("mongoose"));
-const ManagerSchema = new mongoose_1.Schema({
-    mySubordinates: { type: [mongoose_1.default.Schema.Types.ObjectId], required: false, ref: 'Employee', default: [] },
-    myReports: { type: [mongoose_1.default.Schema.Types.ObjectId], required: false, ref: 'Report', default: [] }
+const reportSchema = new mongoose_1.Schema({
+    text: { type: String, required: true },
+    date: { type: String, required: true, default: new Date().toISOString() },
+    employeeId: { type: mongoose_1.default.Schema.Types.ObjectId, required: true, ref: 'Employee' },
+    managerId: { type: mongoose_1.default.Schema.Types.ObjectId, required: true, ref: 'Employee' }
 });
-exports.default = mongoose_1.default.model('Manager', ManagerSchema);
+const reportModel = mongoose_1.default.model('Report', reportSchema);
+exports.default = reportModel;

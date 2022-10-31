@@ -9,4 +9,6 @@ const validation_1 = require("../middleware/validation");
 const router = express_1.default.Router();
 router.get('/myreports', Report_1.getReportsForUser);
 router.post('/:managerId', validation_1.validateReport, Report_1.createReport);
+router.delete('/:reportId', Report_1.deleteReport);
+router.delete('/', Report_1.deleteAllReportsForUser);
 exports.default = router;

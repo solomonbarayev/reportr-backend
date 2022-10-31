@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getReportsForUser = exports.createReport = void 0;
+exports.deleteAllReportsForUser = exports.deleteReport = exports.getReportsForUser = exports.createReport = void 0;
 const BasRequestError_1 = __importDefault(require("../errors/BasRequestError"));
 const NotFoundError_1 = __importDefault(require("../errors/NotFoundError"));
 const Report_1 = __importDefault(require("../models/Report"));
@@ -60,3 +60,39 @@ const getReportsForUser = (req, res, next) => {
         .catch(next);
 };
 exports.getReportsForUser = getReportsForUser;
+const deleteReport = (req, res, next) => {
+    const reportId = req.params.reportId;
+    const managerId = req.user._id;
+    Report_1.default.findByIdAndDelete({ _id: reportId, managerId })
+        .orFail(() => {
+        throw new NotFoundError_1.default('Report not found');
+    })
+        .then((report) => {
+        //remove report id from manager's myReports array
+        Manager_1.default.updateOne({ _id: managerId }, { $pull: { myReports: reportId } })
+            .then((result) => console.log(result))
+            .catch(next);
+        res.status(200).json({
+            message: 'Report deleted successfully',
+            report
+        });
+    })
+        .catch(next);
+};
+exports.deleteReport = deleteReport;
+const deleteAllReportsForUser = (req, res, next) => {
+    const managerId = req.user._id;
+    Report_1.default.deleteMany({ managerId })
+        .then((result) => {
+        //remove all report ids from manager's myReports array
+        Manager_1.default.updateOne({ _id: managerId }, { $set: { myReports: [] } })
+            .then((result) => console.log(result))
+            .catch(next);
+        res.status(200).json({
+            message: 'All reports deleted successfully',
+            result
+        });
+    })
+        .catch(next);
+};
+exports.deleteAllReportsForUser = deleteAllReportsForUser;

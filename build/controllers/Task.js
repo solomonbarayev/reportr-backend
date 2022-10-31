@@ -79,4 +79,22 @@ const getCurrentUserTasks = (req, res, next) => {
         return next(err);
     });
 };
-exports.default = { assignTask, getTasksForEmployee, getAllTasks, getCurrentUserTasks };
+const deleteTask = (req, res, next) => {
+    const { taskId } = req.params;
+    Task_1.default.findByIdAndDelete({ _id: taskId })
+        .then((result) => {
+        if (result) {
+            res.status(200).json({ message: 'Task deleted successfully', deleted: result });
+        }
+        else {
+            throw new NotFoundError_1.default('Task not found');
+        }
+    })
+        .catch((err) => {
+        if (err.name === 'CastError') {
+            next(new BasRequestError_1.default('Invalid ID'));
+        }
+        return next(err);
+    });
+};
+exports.default = { assignTask, getTasksForEmployee, getAllTasks, getCurrentUserTasks, deleteTask };

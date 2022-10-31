@@ -59,3 +59,41 @@ export const getReportsForUser = (req: IGetUserAuthInfoRequest, res: Response, n
         .then((reports) => res.status(200).json(reports))
         .catch(next);
 };
+
+export const deleteReport = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+    const reportId = req.params.reportId;
+    const managerId = req.user!._id!;
+    Report.findByIdAndDelete({ _id: reportId, managerId })
+        .orFail(() => {
+            throw new NotFoundError('Report not found');
+        })
+        .then((report) => {
+            //remove report id from manager's myReports array
+            Manager.updateOne({ _id: managerId }, { $pull: { myReports: reportId } })
+                .then((result) => console.log(result))
+                .catch(next);
+
+            res.status(200).json({
+                message: 'Report deleted successfully',
+                report
+            });
+        })
+        .catch(next);
+};
+
+export const deleteAllReportsForUser = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+    const managerId = req.user!._id!;
+    Report.deleteMany({ managerId })
+        .then((result) => {
+            //remove all report ids from manager's myReports array
+            Manager.updateOne({ _id: managerId }, { $set: { myReports: [] } })
+                .then((result) => console.log(result))
+                .catch(next);
+
+            res.status(200).json({
+                message: 'All reports deleted successfully',
+                result
+            });
+        })
+        .catch(next);
+};

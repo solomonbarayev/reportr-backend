@@ -83,4 +83,23 @@ const getCurrentUserTasks = (req: IGetUserAuthInfoRequest, res: Response, next: 
         });
 };
 
-export default { assignTask, getTasksForEmployee, getAllTasks, getCurrentUserTasks };
+const deleteTask = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+    const { taskId } = req.params;
+
+    Task.findByIdAndDelete({ _id: taskId })
+        .then((result) => {
+            if (result) {
+                res.status(200).json({ message: 'Task deleted successfully', deleted: result });
+            } else {
+                throw new NotFoundError('Task not found');
+            }
+        })
+        .catch((err) => {
+            if (err.name === 'CastError') {
+                next(new BadRequestError('Invalid ID'));
+            }
+            return next(err);
+        });
+};
+
+export default { assignTask, getTasksForEmployee, getAllTasks, getCurrentUserTasks, deleteTask };

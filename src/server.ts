@@ -1,4 +1,5 @@
 import { config } from './config/config';
+require('dotenv').config({ path: '../.env' });
 
 import App from './app';
 import EmployeeController from './employees/employees.controller';

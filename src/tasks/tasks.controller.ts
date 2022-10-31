@@ -74,6 +74,7 @@ class TaskController implements Controller {
 
     private getCurrentUserTasks = (req: RequestWithUser, res: express.Response, next: express.NextFunction) => {
         const { _id } = req.user!;
+
         this.employees
             .findById(_id)
             .populate({ path: 'myTasks', select: 'title dueDate' })

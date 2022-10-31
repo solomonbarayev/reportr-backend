@@ -1,16 +1,7 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
+import ITask from './task.interface';
 
-export interface ITask {
-    title: string;
-    employeeId: Types.ObjectId;
-    managerId: Types.ObjectId;
-    dueDate: string;
-    assignedDate: string;
-}
-
-export interface ITaskModel extends ITask, Document {}
-
-const TaskSchema = new Schema({
+const taskSchema = new Schema({
     title: { type: String, required: true },
     employeeId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Employee' },
     managerId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Employee' },
@@ -18,4 +9,6 @@ const TaskSchema = new Schema({
     assignDate: { type: String, required: true, default: new Date().toISOString() }
 });
 
-export default mongoose.model<ITaskModel>('Task', TaskSchema);
+const taskModel = mongoose.model<ITask & Document>('Task', taskSchema);
+
+export default taskModel;

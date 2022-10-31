@@ -1,12 +1,13 @@
 const jwt = require('jsonwebtoken');
 import { Response, NextFunction } from 'express';
-import { IGetUserAuthInfoRequest } from '../definitions/definitions';
+import RequestWithUser from '../interfaces/requestWithUser.interface';
+import UnauthorizedError from '../errors/UnauthorizedError';
 
-const auth = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) => {
+const auth = (req: RequestWithUser, res: Response, next: NextFunction) => {
     const { authorization } = req.headers;
 
     if (!authorization || !authorization.startsWith('Bearer ')) {
-        return res.status(401).json({ error: 'You must be logged in.' });
+        throw new UnauthorizedError('You must log in.');
     }
 
     const token = authorization.replace('Bearer ', '');
@@ -15,7 +16,7 @@ const auth = (req: IGetUserAuthInfoRequest, res: Response, next: NextFunction) =
     try {
         payload = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-        return res.status(401).json({ error: 'You must be logged in.' });
+        return res.status(401).json({ error: 'Unauthorized. You must be logged in.' });
     }
 
     req.user = { _id: payload._id };

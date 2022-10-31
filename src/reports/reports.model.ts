@@ -1,19 +1,13 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
+import IReport from './report.interface';
 
-export interface IReport {
-    text: string;
-    date: string;
-    employeeId: Types.ObjectId;
-    managerId: Types.ObjectId;
-}
-
-export interface IReportModel extends IReport, Document {}
-
-const ReportSchema = new Schema({
+const reportSchema = new Schema({
     text: { type: String, required: true },
     date: { type: String, required: true, default: new Date().toISOString() },
     employeeId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Employee' },
     managerId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Employee' }
 });
 
-export default mongoose.model<IReportModel>('Report', ReportSchema);
+const reportModel = mongoose.model<IReport & Document>('Report', reportSchema);
+
+export default reportModel;

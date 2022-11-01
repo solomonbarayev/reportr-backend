@@ -47,8 +47,8 @@ class App {
         this.app.use(logger.requestLogger);
     }
 
-    private initializeControllers(controllers: any) {
-        controllers.forEach((controller: any) => {
+    private initializeControllers(controllers: Controller[]) {
+        controllers.forEach((controller: Controller) => {
             this.app.use('/', controller.router);
         });
 

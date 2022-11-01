@@ -1,5 +1,4 @@
 import express from 'express';
-import { IEmployee } from './employee.interface';
 import employeeModel from './employees.model';
 import managerModel from '../managers/managers.model';
 import Controller from '../interfaces/controller.interface';
@@ -22,7 +21,7 @@ class EmployeeController implements Controller {
         this.initializeRoutes();
     }
 
-    public initializeRoutes() {
+    private initializeRoutes() {
         this.router.get(`${this.path}/myprofile`, auth, this.getCurrentLoggedInEmployee);
         this.router.get(`${this.path}/:id`, auth, validateObjectId, this.getEmployee);
         this.router.get(this.path, this.getAllEmployees);

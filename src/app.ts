@@ -7,14 +7,15 @@ import Logging from './library/Logging';
 import { limiter } from './middleware/limiter.middleware';
 import helmet from 'helmet';
 import NotFoundError from './errors/NotFoundError';
-const logger = require('./middleware/logger.middleware');
+import * as logger from './middleware/logger.middleware';
+import Controller from './interfaces/controller.interface';
 const cors = require('cors');
 
 class App {
     public app: express.Application;
     public port: number;
 
-    constructor(controllers: any[], port: number) {
+    constructor(controllers: Controller[], port: number) {
         this.app = express();
         this.port = port;
         this.initializeMiddlewares();

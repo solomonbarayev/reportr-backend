@@ -9,6 +9,8 @@ const bcrypt = require('bcryptjs');
 import ConflictError from '../errors/ConflictError';
 import BadRequestError from '../errors/BadRequestError';
 import NotFoundError from '../errors/NotFoundError';
+import taskModel from '../tasks/tasks.model';
+import reportModel from '../reports/reports.model';
 
 class EmployeeController implements Controller {
     public path = '/employees';
@@ -16,6 +18,8 @@ class EmployeeController implements Controller {
 
     private employees = employeeModel;
     private managers = managerModel;
+    private tasks = taskModel;
+    private reports = reportModel;
 
     constructor() {
         this.initializeRoutes();
@@ -27,6 +31,7 @@ class EmployeeController implements Controller {
         this.router.get(this.path, this.getAllEmployees);
         this.router.post(this.path, validateEmployee, this.createEmployee);
         this.router.get(`${this.path}/:id`, auth, validateObjectId, this.getEmployeeById);
+        this.router.delete(this.path, this.deleteAllEmployees);
     }
 
     private createEmployee = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -177,6 +182,25 @@ class EmployeeController implements Controller {
                 console.log(err.message);
                 return next(err.message);
             });
+    };
+
+    private deleteAllEmployees = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        //delete all employees
+        //delete all managers
+        //delete all tasks
+        //delete all reports
+        this.employees
+            .deleteMany({})
+            .then(() => {
+                this.managers.deleteMany({}).then(() => {
+                    this.tasks.deleteMany({}).then(() => {
+                        this.reports.deleteMany({}).then(() => {
+                            res.status(200).json({ message: 'All employees, managers, tasks, and reports deleted' });
+                        });
+                    });
+                });
+            })
+            .catch(next);
     };
 }
 

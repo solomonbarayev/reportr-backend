@@ -131,7 +131,6 @@ class EmployeeController implements Controller {
     //4. if employee is not manager, return the employee
     private getEmployee = (req: RequestWithUser, res: express.Response, next: express.NextFunction) => {
         const id = req.params.id;
-        console.log(id);
 
         this.employees
             .findById(id)
@@ -173,7 +172,6 @@ class EmployeeController implements Controller {
                 }
             })
             .catch((err) => {
-                console.log('here');
                 if (err.name === 'CastError') {
                     next(new BadRequestError(err.message));
                 }

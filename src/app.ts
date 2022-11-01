@@ -6,6 +6,7 @@ import { errors } from 'celebrate';
 import Logging from './library/Logging';
 import { limiter } from './middleware/limiter.middleware';
 import helmet from 'helmet';
+import NotFoundError from './errors/NotFoundError';
 const logger = require('./middleware/logger.middleware');
 const cors = require('cors');
 
@@ -48,6 +49,11 @@ class App {
     private initializeControllers(controllers: any) {
         controllers.forEach((controller: any) => {
             this.app.use('/', controller.router);
+        });
+
+        // catch 404 and forward to error handler
+        this.app.use('*', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+            next(new NotFoundError("The requested resource doesn't exist"));
         });
     }
 

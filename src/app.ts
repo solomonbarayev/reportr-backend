@@ -4,7 +4,7 @@ import { config } from './config/config';
 import errorHandler from './middleware/errorHandler.middleware';
 import { errors } from 'celebrate';
 import Logging from './library/Logging';
-import { limiter } from './middleware/limiter.middleware';
+// import { limiter } from './middleware/limiter.middleware';
 import helmet from 'helmet';
 import NotFoundError from './errors/NotFoundError';
 import * as logger from './middleware/logger.middleware';
@@ -29,7 +29,7 @@ class App {
         this.app.use(cors());
         this.app.options('*', cors());
         this.app.use(helmet());
-        this.app.use(limiter);
+        // this.app.use(limiter);
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
     }

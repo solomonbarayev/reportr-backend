@@ -91,3 +91,7 @@ finish both learning TS and implementing it into this app.
 -   Run `npm install` to install all dependencies
 -   Run `npm run dev` to start the server
 -   clone the frontend repository and follow the instructions in the readme to run the frontend locally
+
+## Author
+
+Solomon Barayev

@@ -2,11 +2,9 @@ import express from 'express';
 import employeeModel from './employees.model';
 import managerModel from '../managers/managers.model';
 import Controller from '../interfaces/controller.interface';
-import { validateEmployee, validateObjectId } from '../middleware/validation.middleware';
+import { validateObjectId } from '../middleware/validation.middleware';
 import auth from '../middleware/auth.middleware';
 import RequestWithUser from '../interfaces/requestWithUser.interface';
-const bcrypt = require('bcryptjs');
-import ConflictError from '../errors/ConflictError';
 import BadRequestError from '../errors/BadRequestError';
 import NotFoundError from '../errors/NotFoundError';
 import taskModel from '../tasks/tasks.model';
@@ -29,89 +27,13 @@ class EmployeeController implements Controller {
         this.router.get(`${this.path}/myprofile`, auth, this.getCurrentLoggedInEmployee);
         this.router.get(`${this.path}/:id`, auth, validateObjectId, this.getEmployee);
         this.router.get(this.path, this.getAllEmployees);
-        this.router.post(this.path, validateEmployee, this.createEmployee);
-        this.router.get(`${this.path}/:id`, auth, validateObjectId, this.getEmployeeById);
         this.router.delete(this.path, this.deleteAllEmployees);
     }
-
-    private createEmployee = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-        /* create employee function needs:
-    1. check if email already exists
-    2. hash password
-    3. create employee
-    4. check if this employee is manager and if so create manager
-    5. if manager, update other employees who's ID are in this employee's mySubordinates array
-    */
-        // const employeeData: IEmployee = req.body;
-        const { mySubordinates, ...employeeData } = req.body;
-        const createdEmployee = new this.employees(employeeData);
-        //check if employee already exists
-        this.employees
-            .findOne({ email: employeeData.email })
-            .then((employee) => {
-                if (employee) {
-                    throw new ConflictError('Email already exists');
-                }
-                return bcrypt.hash(employeeData.password, 10);
-            })
-            .then((hash) => {
-                createdEmployee.password = hash;
-                createdEmployee
-                    .save()
-                    .then((savedEmployee) => {
-                        //check if this employee is manager and if so create manager
-                        if (savedEmployee.isManager) {
-                            this.managers
-                                .create({
-                                    mySubordinates,
-                                    _id: savedEmployee._id
-                                })
-                                .then((manager) => {
-                                    //update other employees who's ID are in this employee's mySubordinates array
-                                    if (manager.mySubordinates.length > 0) {
-                                        manager.mySubordinates.forEach((subordinateId) => {
-                                            this.employees
-                                                .findByIdAndUpdate(subordinateId, { managerId: manager._id }, { new: true })
-                                                .then((subordinate) => {
-                                                    console.log(subordinate);
-                                                })
-                                                .catch(next);
-                                        });
-                                    }
-                                })
-                                .catch(next);
-                        }
-                        return res.status(201).send(savedEmployee);
-                    })
-                    .catch((err) => {
-                        if (err.name === 'ValidationError') {
-                            next(new BadRequestError(err.message));
-                        } else {
-                            next(err);
-                        }
-                    });
-            })
-            .catch(next);
-    };
 
     private getAllEmployees = (req: express.Request, res: express.Response, next: express.NextFunction) => {
         this.employees
             .find()
             .then((employees) => res.status(200).json(employees))
-            .catch(next);
-    };
-
-    private getEmployeeById = (req: RequestWithUser, res: express.Response, next: express.NextFunction) => {
-        const id = req.params.id;
-        this.employees
-            .findById(id)
-            .then((employee) => {
-                if (employee) {
-                    res.send(employee);
-                } else {
-                    res.sendStatus(404);
-                }
-            })
             .catch(next);
     };
 

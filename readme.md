@@ -78,7 +78,6 @@ All API endpoints are validated using Joi on the serverside.
     -   task deadline approaching (1 day before)
 
 -   add a chat feature for employees to communicate with each other
--   imporve Homepage UI (where you can see all employees and their profiles)
 
 ## Particular Challenges:
 

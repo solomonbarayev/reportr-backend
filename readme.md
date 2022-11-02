@@ -58,7 +58,7 @@ All API endpoints are validated using Joi on the serverside.
 
 [https://api.reportr.solomonbarayev.dev/](https://api.reportr.solomonbarayev.dev/)
 
-## Deployed Frontend URL (GCP)
+## Deployed Fullstack App URL (GCP)
 
 [https://reportr.solomonbarayev.dev/](https://reportr.solomonbarayev.dev/)
 
